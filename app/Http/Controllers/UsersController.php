@@ -308,8 +308,7 @@ class UsersController extends Controller
   public function profileTopics($id)
   {
     $user = User::find($id);
-    $topics = Topic::where('topics.userID', '=', $user->id)->join('users', 'topics.userID', '=', 'users.id')->where('users.ban', '=', 0)->where('users.inactive', '=', 0)->join('profiles', 'users.id', '=', 'profiles.userID')->orderBy('topics.created_at', 'DESC')->select('topics.id', 'topics.userID', 'topics.topicReplies', 'topics.topicVotes', 'topics.created_at', 'users.name', 'users.avatar', 'profiles.profileName')->paginate(10);
-    $photos = Photo::where('')
+    $topics = Topic::where('topics.userID', '=', $user->id)->join('users', 'topics.userID', '=', 'users.id')->where('users.ban', '=', 0)->where('users.inactive', '=', 0)->join('profiles', 'users.id', '=', 'profiles.userID')->orderBy('topics.created_at', 'DESC')->select('topics.id', 'topics.userID', 'topics.topicReplies', 'topics.topicVotes', 'topics.created_at', 'users.name', 'users.avatar', 'profiles.profileName')->paginate(12);
     foreach($topics as $tkey => $topic)
     {
       $topic->topicDate = Carbon::createFromTimeStamp(strtotime($topic->created_at))->diffForHumans();
@@ -329,6 +328,9 @@ class UsersController extends Controller
       else {
         $topic->vote = 0;
       }
+
+      $photos = Photo::where('topicID', '=', $topic->id)->get();
+      $topic->topicThumbnail = $photo[0];
     }
 
     return Response::json($topics);
